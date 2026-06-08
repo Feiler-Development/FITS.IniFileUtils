@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns="http://msh" schema="maml">
+
+  <!-- Get-IniContent -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Get-IniContent</command:name>
+      <maml:description><maml:para>Reads an INI file into an ordered dictionary.</maml:para></maml:description>
+      <command:verb>Get</command:verb><command:noun>IniContent</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Parses an INI file and returns a case-sensitive OrderedDictionary. Each section is a key whose value is another OrderedDictionary containing the section's key-value pairs. Comment lines (starting with ;) are preserved as Comment1, Comment2, ... keys. Lines before the first section header are stored in a '_global' section.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-IniContent</maml:name>
+        <command:parameter required="true" position="0"><maml:name>FilePath</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" position="0">
+        <maml:name>FilePath</maml:name>
+        <maml:description><maml:para>Path to the INI file to read. The file must exist.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue>
+        <dev:type>System.String</dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Read an INI file ---</maml:title>
+        <dev:code>$ini = Get-IniContent -FilePath C:\App\config.ini
+$ini['Database']['Server']</dev:code>
+        <dev:remarks><maml:para>Reads config.ini and retrieves the Server value from the Database section.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Access a subsection ---</maml:title>
+        <dev:code>$ini = Get-IniContent -FilePath C:\App\config.ini
+$ini['Database.Replica']['Host']</dev:code>
+        <dev:remarks><maml:para>Subsections with dotted names are treated as regular section keys.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>New-IniFileContentString</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- New-IniFileContentString -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>New-IniFileContentString</command:name>
+      <maml:description><maml:para>Serialises an INI content dictionary back to a formatted string.</maml:para></maml:description>
+      <command:verb>New</command:verb><command:noun>IniFileContentString</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Converts an OrderedDictionary (as returned by Get-IniContent) back to a valid INI-formatted string. Comments stored as Comment1, Comment2, ... are written as raw comment lines. Sections are separated by blank lines. Use Set-Content to write the result back to a file.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-IniFileContentString</maml:name>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to serialise, as returned by Get-IniContent.</maml:para></maml:description>
+        <command:parameterValue>System.Collections.Specialized.OrderedDictionary</command:parameterValue>
+        <dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Read, modify and write back ---</maml:title>
+        <dev:code>$ini = Get-IniContent -FilePath C:\App\config.ini
+$ini['Database']['Server'] = 'db02'
+New-IniFileContentString -IniFileContent $ini | Set-Content C:\App\config.ini -Encoding UTF8</dev:code>
+        <dev:remarks><maml:para>Round-trip: read, change a value, write back.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Get-IniContent</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- New-IniFileSection -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>New-IniFileSection</command:name>
+      <maml:description><maml:para>Adds a new empty section to an INI content dictionary.</maml:para></maml:description>
+      <command:verb>New</command:verb><command:noun>IniFileSection</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Inserts a new empty section into an existing INI content dictionary. The section can be appended at the end (default) or placed before or after an existing section. Subsection names using dot notation (e.g. Primary.Sub) are fully supported.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-IniFileSection</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>New-IniFileSection (InsertAfter)</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>InsertAfter</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>New-IniFileSection (InsertBefore)</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>InsertBefore</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" position="0">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>Name of the new section. Dot notation is supported for subsections, e.g. Database.Replica.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>InsertAfter</maml:name>
+        <maml:description><maml:para>Name of an existing section after which the new section is inserted. Falls back to append if the reference section is not found.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>InsertBefore</maml:name>
+        <maml:description><maml:para>Name of an existing section before which the new section is inserted. Falls back to append if the reference section is not found.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Append ---</maml:title>
+        <dev:code>New-IniFileSection -SectionName 'Logging' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Appends an empty Logging section at the end.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Insert between sections ---</maml:title>
+        <dev:code>New-IniFileSection -SectionName 'Cache' -IniFileContent $ini -InsertAfter 'Database'</dev:code>
+        <dev:remarks><maml:para>Inserts Cache immediately after the Database section.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 3: Subsection ---</maml:title>
+        <dev:code>New-IniFileSection -SectionName 'Database.Replica' -IniFileContent $ini -InsertAfter 'Database'</dev:code>
+        <dev:remarks><maml:para>Creates a subsection directly after its parent section.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Remove-IniFileSection</maml:linkText></maml:navigationLink>
+      <maml:navigationLink><maml:linkText>Move-IniFileSection</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Add-ValueToIniFileContent -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Add-ValueToIniFileContent</command:name>
+      <maml:description><maml:para>Adds or appends a value to one or more keys in an INI section.</maml:para></maml:description>
+      <command:verb>Add</command:verb><command:noun>ValueToIniFileContent</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Sets a value on one or more keys within an INI section. With -AppendValue, the new value is appended to the existing comma-separated list instead of replacing it. The section must already exist; use New-IniFileSection to create it first.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Add-ValueToIniFileContent</maml:name>
+        <command:parameter required="true"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ValueName</maml:name><command:parameterValue>String[]</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>Value</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>AppendValue</maml:name></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>The section to modify.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>ValueName</maml:name>
+        <maml:description><maml:para>One or more key names to set. The same value is applied to all specified keys.</maml:para></maml:description>
+        <command:parameterValue>String[]</command:parameterValue><dev:type>System.String[]</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>Value</maml:name>
+        <maml:description><maml:para>The value to set or append.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>AppendValue</maml:name>
+        <maml:description><maml:para>Appends the value to the existing comma-separated list. Without this switch the key is overwritten.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Set a value ---</maml:title>
+        <dev:code>Add-ValueToIniFileContent -SectionName 'Database' -ValueName 'Server' -Value 'db01' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Sets Database/Server to db01.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Append to a list ---</maml:title>
+        <dev:code>Add-ValueToIniFileContent -SectionName 'App' -ValueName 'Roles' -Value 'Admin' -IniFileContent $ini -AppendValue</dev:code>
+        <dev:remarks><maml:para>If Roles = User, the result is Roles = User,Admin.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Remove-ValueFromIniFileContent</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Remove-ValueFromIniFileContent -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Remove-ValueFromIniFileContent</command:name>
+      <maml:description><maml:para>Removes a specific value from a comma-separated key in an INI section.</maml:para></maml:description>
+      <command:verb>Remove</command:verb><command:noun>ValueFromIniFileContent</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Removes one or more entries from a comma-separated value list within an INI key. Matching can be done by exact value or regular expression. The operation can target specific keys or all keys in a section. Optionally removes the key entirely if the list becomes empty.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Remove-ValueFromIniFileContent (SpecificValue)</maml:name>
+        <command:parameter required="true"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ValueName</maml:name><command:parameterValue>String[]</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>Value</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>RemoveSettingIfEmpty</maml:name></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Remove-ValueFromIniFileContent (ValueExpression)</maml:name>
+        <command:parameter required="true"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ValueName</maml:name><command:parameterValue>String[]</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ValueRegEx</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>RemoveSettingIfEmpty</maml:name></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Remove-ValueFromIniFileContent (AllKeys)</maml:name>
+        <command:parameter required="true"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>Value</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>RemoveValueFromAllKeys</maml:name></command:parameter>
+        <command:parameter required="false"><maml:name>RemoveSettingIfEmpty</maml:name></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>The section to operate on.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>ValueName</maml:name>
+        <maml:description><maml:para>Keys to process. Required unless -RemoveValueFromAllKeys is used.</maml:para></maml:description>
+        <command:parameterValue>String[]</command:parameterValue><dev:type>System.String[]</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>Value</maml:name>
+        <maml:description><maml:para>Exact value to remove (case-insensitive).</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>ValueRegEx</maml:name>
+        <maml:description><maml:para>Regular expression to match values for removal (case-insensitive).</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>RemoveSettingIfEmpty</maml:name>
+        <maml:description><maml:para>Removes the key entirely if its value list is empty after the operation.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>RemoveValueFromAllKeys</maml:name>
+        <maml:description><maml:para>Applies the removal to all keys in the section instead of specific keys.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Remove exact value from a key ---</maml:title>
+        <dev:code>Remove-ValueFromIniFileContent -SectionName 'App' -ValueName 'Roles' -Value 'Guest' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Removes Guest from the comma-separated Roles list.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Remove by regex, delete key if empty ---</maml:title>
+        <dev:code>Remove-ValueFromIniFileContent -SectionName 'App' -ValueName 'Roles' -ValueRegEx '^Temp' -IniFileContent $ini -RemoveSettingIfEmpty</dev:code>
+        <dev:remarks><maml:para>Removes all values starting with Temp. Deletes the key if the list becomes empty.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 3: Remove value from all keys in section ---</maml:title>
+        <dev:code>Remove-ValueFromIniFileContent -SectionName 'Permissions' -Value 'ReadOnly' -IniFileContent $ini -RemoveValueFromAllKeys</dev:code>
+        <dev:remarks><maml:para>Removes ReadOnly from every key in the Permissions section.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Add-ValueToIniFileContent</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Remove-IniFileSection -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Remove-IniFileSection</command:name>
+      <maml:description><maml:para>Removes a section from an INI content dictionary.</maml:para></maml:description>
+      <command:verb>Remove</command:verb><command:noun>IniFileSection</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Deletes a section and optionally all its keys from an INI content dictionary. Without -RemoveAllValues, a non-empty section produces a warning and no action is taken. Supports -WhatIf and -Confirm.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Remove-IniFileSection</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>RemoveAllValues</maml:name></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" position="0">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>The section to remove.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>RemoveAllValues</maml:name>
+        <maml:description><maml:para>Forces removal even when the section contains keys. Without this switch, a warning is issued and no action is taken for non-empty sections.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Remove empty section ---</maml:title>
+        <dev:code>Remove-IniFileSection -SectionName 'OldApp' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Removes OldApp if it is empty. Issues a warning otherwise.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Force removal including all values ---</maml:title>
+        <dev:code>Remove-IniFileSection -SectionName 'OldApp' -IniFileContent $ini -RemoveAllValues</dev:code>
+        <dev:remarks><maml:para>Removes OldApp and all its keys regardless of content.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 3: Preview with WhatIf ---</maml:title>
+        <dev:code>Remove-IniFileSection -SectionName 'OldApp' -IniFileContent $ini -RemoveAllValues -WhatIf</dev:code>
+        <dev:remarks><maml:para>Shows what would be removed without making changes.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Clear-IniFileSection</maml:linkText></maml:navigationLink>
+      <maml:navigationLink><maml:linkText>New-IniFileSection</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Clear-IniFileSection -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Clear-IniFileSection</command:name>
+      <maml:description><maml:para>Removes all key-value pairs from a section while keeping the section itself.</maml:para></maml:description>
+      <command:verb>Clear</command:verb><command:noun>IniFileSection</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Empties a section by removing all its keys and values. The section header remains in the file. Supports -WhatIf and -Confirm. To remove the section header as well, use Remove-IniFileSection.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Clear-IniFileSection</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" position="0">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>The section to clear.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Clear a section ---</maml:title>
+        <dev:code>Clear-IniFileSection -SectionName 'Cache' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Removes all keys from Cache. The [Cache] header remains in the file.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Remove-IniFileSection</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Move-IniFileSection -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Move-IniFileSection</command:name>
+      <maml:description><maml:para>Repositions a section within the INI file order.</maml:para></maml:description>
+      <command:verb>Move</command:verb><command:noun>IniFileSection</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Changes the position of an existing section within the INI content dictionary without affecting its keys or values. The section can be moved before or after another section, or to the very beginning or end of the file.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Move-IniFileSection -After</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>After</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Move-IniFileSection -Before</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>Before</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Move-IniFileSection -ToStart</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ToStart</maml:name></command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Move-IniFileSection -ToEnd</maml:name>
+        <command:parameter required="true" position="0"><maml:name>SectionName</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>ToEnd</maml:name></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" position="0">
+        <maml:name>SectionName</maml:name>
+        <maml:description><maml:para>The section to reposition.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>After</maml:name>
+        <maml:description><maml:para>Move the section immediately after this existing section.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>Before</maml:name>
+        <maml:description><maml:para>Move the section immediately before this existing section.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>ToStart</maml:name>
+        <maml:description><maml:para>Move the section to the very beginning of the file.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>ToEnd</maml:name>
+        <maml:description><maml:para>Move the section to the very end of the file.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Move after another section ---</maml:title>
+        <dev:code>Move-IniFileSection -SectionName 'Logging' -IniFileContent $ini -After 'General'</dev:code>
+        <dev:remarks><maml:para>Moves Logging so it appears directly after General.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Move to start ---</maml:title>
+        <dev:code>Move-IniFileSection -SectionName 'General' -IniFileContent $ini -ToStart</dev:code>
+        <dev:remarks><maml:para>Ensures General is the first section in the file.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>New-IniFileSection</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+  <!-- Move-IniFileValues -->
+  <command:command
+    xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Move-IniFileValues</command:name>
+      <maml:description><maml:para>Transfers key-value pairs from one INI section to another.</maml:para></maml:description>
+      <command:verb>Move</command:verb><command:noun>IniFileValues</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Moves or copies key-value pairs from a source section to a destination section. All keys are transferred by default; use -Keys to select specific ones. With -Copy the source keys are preserved. Without -Overwrite, keys that already exist in the destination are skipped with a warning. Supports -WhatIf and -Confirm.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Move-IniFileValues</maml:name>
+        <command:parameter required="true"><maml:name>SourceSection</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>DestinationSection</maml:name><command:parameterValue>String</command:parameterValue></command:parameter>
+        <command:parameter required="true"><maml:name>IniFileContent</maml:name><command:parameterValue>OrderedDictionary</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>Keys</maml:name><command:parameterValue>String[]</command:parameterValue></command:parameter>
+        <command:parameter required="false"><maml:name>Copy</maml:name></command:parameter>
+        <command:parameter required="false"><maml:name>Overwrite</maml:name></command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true">
+        <maml:name>SourceSection</maml:name>
+        <maml:description><maml:para>The section to transfer keys from.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>DestinationSection</maml:name>
+        <maml:description><maml:para>The section to transfer keys into.</maml:para></maml:description>
+        <command:parameterValue>String</command:parameterValue><dev:type>System.String</dev:type>
+      </command:parameter>
+      <command:parameter required="true">
+        <maml:name>IniFileContent</maml:name>
+        <maml:description><maml:para>The OrderedDictionary to modify.</maml:para></maml:description>
+        <command:parameterValue>OrderedDictionary</command:parameterValue><dev:type>System.Collections.Specialized.OrderedDictionary</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>Keys</maml:name>
+        <maml:description><maml:para>Specific key names to transfer. If omitted, all keys from the source section are transferred.</maml:para></maml:description>
+        <command:parameterValue>String[]</command:parameterValue><dev:type>System.String[]</dev:type>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>Copy</maml:name>
+        <maml:description><maml:para>Copies keys to the destination instead of moving them. Source keys are preserved.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false">
+        <maml:name>Overwrite</maml:name>
+        <maml:description><maml:para>Overwrites keys that already exist in the destination. Without this switch, existing destination keys are skipped with a warning.</maml:para></maml:description>
+        <dev:type>System.Management.Automation.SwitchParameter</dev:type><dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:examples>
+      <command:example>
+        <maml:title>--- Example 1: Move all keys ---</maml:title>
+        <dev:code>Move-IniFileValues -SourceSection 'OldApp' -DestinationSection 'NewApp' -IniFileContent $ini</dev:code>
+        <dev:remarks><maml:para>Moves all keys from OldApp to NewApp. OldApp remains empty afterwards.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 2: Copy specific keys with overwrite ---</maml:title>
+        <dev:code>Move-IniFileValues -SourceSection 'Template' -DestinationSection 'NewApp' -IniFileContent $ini -Keys @('Timeout','RetryCount') -Copy -Overwrite</dev:code>
+        <dev:remarks><maml:para>Copies Timeout and RetryCount from Template to NewApp, overwriting any existing values.</maml:para></dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--- Example 3: Preview with WhatIf ---</maml:title>
+        <dev:code>Move-IniFileValues -SourceSection 'OldApp' -DestinationSection 'NewApp' -IniFileContent $ini -WhatIf</dev:code>
+        <dev:remarks><maml:para>Shows which keys would be moved without making changes.</maml:para></dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink><maml:linkText>Move-IniFileSection</maml:linkText></maml:navigationLink>
+      <maml:navigationLink><maml:linkText>Add-ValueToIniFileContent</maml:linkText></maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+
+</helpItems>
