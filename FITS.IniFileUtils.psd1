@@ -3,7 +3,7 @@
     ModuleVersion     = '1.0.0'
     GUID              = '7d2556e7-20ae-4c15-9b0d-a6fee14c03a3'
     Author            = 'Daniel Feiler'
-    CompanyName       = 'FITS - Feiler IT Scripting Tools'
+    CompanyName       = 'FITS'
     Copyright         = '(c) Daniel Feiler. All rights reserved.'
     Description       = 'Read, write and manipulate INI files. Supports sections, subsections, comments, comma-separated value lists and full roundtrip serialisation.'
     PowerShellVersion = '5.1'
